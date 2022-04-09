@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
+import json
+from flask import Flask, render_template, request, jsonify
 from datetime import datetime
-import re
+import key 
 
 app = Flask(__name__)
+key = key.getEnv()
 
 
 ## EMPTY HTML FILES
@@ -27,3 +29,24 @@ def submit(name = None):
     prediction = None
     
     return render_template("index.html", prediction = prediction)
+
+##GOOGLE MAPS TESTING
+
+@app.route("/maps/")
+def mapInit():
+    return render_template("maps.html")
+
+
+@app.route("/maps/<string:query>", methods = ['POST'])
+def maps(query):
+    payload = {"key":key, "query":query}
+    req = request.post(search_url, params=payload)
+    searchJson = req.json()
+    
+    placeId = searchJson["results"][0]["place_id"]
+    
+    url = ""
+    return jsonify({'result': url})
+
+search_url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+details_url = "https://maps.googleapis.com/maps/api/place/details/json"
